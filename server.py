@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """مين يعرفني أكثر — خادم محلي للعبة.
-شاشة الهوست على الجهاز، واللاعبون يدخلون بالباركود من نفس شبكة الواي فاي."""
+
+المستضيف (الهوست) هو صاحب اللعبة كلها: يجهّز الأسئلة وإجاباتها قبل البداية،
+والأسئلة توجّه للجميع في نفس الوقت — واحد ضد واحد أو فريقين.
+اللاعبون يدخلون بمسح باركود من نفس شبكة الواي فاي ويجاوبون بالألوان."""
 
 import json, os, random, socket, sys, threading, time, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -13,13 +16,15 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 ROUND_SECONDS = 40
 PORT_RANGE = [8000, 8080, 8090, 5000, 3000, 7777]
 
+# ألوان الإجابات — ست ألوان متباعدة تمامًا، ولكل واحد شكل يميّزه
+# حتى لمن يصعب عليه التفريق بين الألوان.
 COLORS = [
-    {"name": "أحمر",    "hex": "#E23B3B", "shape": "▲"},
+    {"name": "أحمر",    "hex": "#E8402F", "shape": "▲"},
     {"name": "أزرق",    "hex": "#2E6BFF", "shape": "◆"},
-    {"name": "أصفر",    "hex": "#E0A200", "shape": "●"},
-    {"name": "أخضر",    "hex": "#1FA463", "shape": "■"},
-    {"name": "بنفسجي",  "hex": "#7C5CFF", "shape": "★"},
-    {"name": "برتقالي", "hex": "#E9650F", "shape": "⬢"},
+    {"name": "أصفر",    "hex": "#F2B01E", "shape": "●"},
+    {"name": "أخضر",    "hex": "#18A957", "shape": "■"},
+    {"name": "بنفسجي",  "hex": "#9B5CF6", "shape": "★"},
+    {"name": "تركوازي", "hex": "#00B2C4", "shape": "⬢"},
 ]
 
 lock = threading.RLock()
@@ -30,19 +35,19 @@ JOIN_URLS = []
 
 # ─────────────────────────── الحالة ───────────────────────────
 def reset(keep_players=False):
+    """المراحل: lobby ← pick ← prep ← round ⇄ play ← reveal ← end"""
     global G
     old = G if (keep_players and G) else None
     G = {
-        "phase": "lobby",          # lobby pick owner compose ready play reveal end
-        "mode": "solo",            # solo | teams
-        "teams": ["الفريق الأزرق", "الفريق الرمادي"],
+        "phase": "lobby",
+        "mode": "solo",                 # solo = واحد ضد واحد | teams = فريقين
+        "teams": ["الفريق الأزرق", "الفريق الأحمر"],
         "players": [],
         "queue": [],
         "round": -1,
         "deadline": 0,
         "hint_used": False,
         "hint": "",
-        "composer": None,          # pid أو "host"
         "version": 1,
     }
     if old:
@@ -77,7 +82,14 @@ def cur():
 
 
 def base_points(q):
+    """أربعة خيارات = نقطة، ستة = نقطتان، وتتضاعف مع دبل النقاط."""
     return (2 if q["count"] == 6 else 1) * (2 if q.get("double") else 1)
+
+
+def q_ready(q):
+    return (len(q["options"]) == q["count"]
+            and all(o.strip() for o in q["options"])
+            and q["correct"] is not None)
 
 
 def clear_answers():
@@ -97,30 +109,34 @@ def snap_host():
     q = cur()
     qq = None
     if q:
-        show = G["phase"] in ("play", "reveal", "end") or G["composer"] == "host"
+        # في مرحلة "round" لا يُعرض نص السؤال — المستضيف يقرر دبل النقاط قبل معرفته
+        seen = G["phase"] in ("play", "reveal", "end")
         qq = {
-            "text": q["text"], "cat": q["cat"], "count": q["count"],
-            "owner": q["owner"], "double": q.get("double", False),
+            "cat": q["cat"], "count": q["count"], "double": q.get("double", False),
             "points": base_points(q),
-            "options": q["options"] if show else [],
+            "text": q["text"] if seen else "",
+            "options": list(q["options"]) if seen else [],
             "correct": q["correct"] if G["phase"] in ("reveal", "end") else None,
-            "pool": q["pool"] if G["composer"] == "host" else [],
-            "ready": bool(q["options"]) and q["correct"] is not None,
         }
-    answered = sum(1 for p in G["players"]
-                   if p["answer"] is not None and (not q or p["id"] != q["owner"]))
-    eligible = sum(1 for p in G["players"] if not q or p["id"] != q["owner"])
-    return {
+    answered = sum(1 for p in G["players"] if p["answer"] is not None)
+    out = {
         "v": G["version"], "now": now_ms(), "phase": G["phase"], "mode": G["mode"],
         "teams": G["teams"], "teamScores": [team_score(0), team_score(1)],
         "players": [{k: p[k] for k in ("id", "name", "team", "score", "answer", "correct", "gain")}
                     for p in G["players"]],
         "round": G["round"], "total": len(G["queue"]), "q": qq,
         "deadline": G["deadline"], "seconds": ROUND_SECONDS,
-        "hint": G["hint"], "hintUsed": G["hint_used"], "composer": G["composer"],
-        "answered": answered, "eligible": eligible, "colors": COLORS,
+        "hint": G["hint"], "hintUsed": G["hint_used"],
+        "answered": answered, "eligible": len(G["players"]), "colors": COLORS,
         "joinUrl": JOIN_URL, "joinUrls": JOIN_URLS,
     }
+    if G["phase"] == "prep":           # شاشة التجهيز تحتاج الأسئلة كاملة بخياراتها الجاهزة
+        out["queue"] = [{"text": x["text"], "cat": x["cat"], "pool": x["pool"],
+                         "count": x["count"], "options": x["options"],
+                         "correct": x["correct"], "ready": q_ready(x)}
+                        for x in G["queue"]]
+        out["allReady"] = all(q_ready(x) for x in G["queue"])
+    return out
 
 
 def snap_player(pid):
@@ -131,22 +147,17 @@ def snap_player(pid):
         "joined": bool(p), "deadline": G["deadline"], "seconds": ROUND_SECONDS,
         "count": q["count"] if q else 4,
         "teams": G["teams"], "mode": G["mode"],
+        "round": G["round"], "total": len(G["queue"]),
     }
     if not p:
         return out
     out["me"] = {"id": p["id"], "name": p["name"], "team": p["team"],
                  "score": p["score"], "answer": p["answer"],
                  "correct": p["correct"], "gain": p["gain"]}
-    out["isOwner"] = bool(q and q["owner"] == p["id"])
-    if q and G["composer"] == pid and G["phase"] == "compose":
-        out["compose"] = {"text": q["text"], "pool": q["pool"], "count": q["count"],
-                          "options": q["options"], "correct": q["correct"],
-                          "cat": q["cat"], "double": q.get("double", False)}
     if q and G["phase"] in ("reveal", "end"):
         out["result"] = {"correct": q["correct"], "points": base_points(q)}
     if G["phase"] == "end":
-        ranked = sorted(G["players"], key=lambda x: -x["score"])
-        out["rank"] = [r["id"] for r in ranked]
+        out["rank"] = [r["id"] for r in sorted(G["players"], key=lambda x: -x["score"])]
     return out
 
 
@@ -154,7 +165,7 @@ def snap_player(pid):
 def act(a):
     t = a.get("action")
 
-    # ---------- اللاعبون ----------
+    # ---------- من الجوالات ----------
     if t == "join":
         name = (a.get("name") or "").strip()[:20]
         if not name:
@@ -173,7 +184,7 @@ def act(a):
         p, q = find(a.get("pid")), cur()
         if not (p and q) or G["phase"] != "play":
             return {"error": "مو وقت الإجابة"}
-        if p["id"] == q["owner"] or p["answer"] is not None:
+        if p["answer"] is not None:
             return {"ok": True}
         if now_ms() > G["deadline"] + 900:
             return {"error": "انتهى الوقت"}
@@ -184,24 +195,7 @@ def act(a):
             touch()
         return {"ok": True}
 
-    if t == "submit_compose":
-        q = cur()
-        if not q or G["phase"] != "compose":
-            return {"error": "مو وقت الكتابة"}
-        if G["composer"] not in ("host", a.get("pid")):
-            return {"error": "مو دورك"}
-        opts = [str(x).strip()[:60] for x in a.get("options", [])]
-        count = 6 if int(a.get("count", 4)) == 6 else 4
-        correct = a.get("correct")
-        opts = (opts + [""] * count)[:count]
-        if any(not o for o in opts) or correct is None or not (0 <= int(correct) < count):
-            return {"error": "عبّي كل الخيارات وحدد الصح"}
-        q["count"], q["options"], q["correct"] = count, opts, int(correct)
-        G["phase"] = "ready"
-        touch()
-        return {"ok": True}
-
-    # ---------- الهوست ----------
+    # ---------- من شاشة المستضيف ----------
     if t == "set_mode":
         G["mode"] = "teams" if a.get("mode") == "teams" else "solo"
     elif t == "set_team_name":
@@ -226,91 +220,100 @@ def act(a):
         G["phase"] = "pick"
     elif t == "back_lobby":
         G["phase"] = "lobby"
-    elif t == "start":
+
+    elif t == "start":                         # اختار الأسئلة → يجهّز إجاباتها
         picks = a.get("picks") or []
         if not picks:
             return {"error": "اختر سؤال على الأقل"}
         queue = []
-        for i, pk in enumerate(picks):
+        for pk in picks:
             if pk.get("custom"):
                 text = (pk.get("text") or "").strip()[:140]
                 pool = [str(x).strip()[:60] for x in (pk.get("pool") or []) if str(x).strip()]
-                cat = "من عندكم"
+                cat = "سؤالك"
             else:
                 c = CATEGORIES[int(pk["c"])]
                 item = c["questions"][int(pk["q"])]
                 text, pool, cat = item["q"], list(item["pool"]), c["name"]
             queue.append({"text": text, "pool": pool, "cat": cat,
-                          "owner": G["players"][i % len(G["players"])]["id"],
                           "count": 4, "options": [], "correct": None, "double": False})
         G["queue"] = queue
-        G["round"] = 0
-        G["phase"] = "owner"
-        G["composer"] = None
+        G["round"] = -1
+        G["phase"] = "prep"
         G["hint"] = ""
         G["hint_used"] = False
         for p in G["players"]:
             p["score"] = 0
         clear_answers()
-    elif t == "set_owner":
-        q = cur()
-        if q and find(a.get("pid")):
-            q["owner"] = a["pid"]
+
+    elif t == "set_question":                  # تعبئة خيارات سؤال واحد
+        i = int(a.get("i", -1))
+        if not (0 <= i < len(G["queue"])):
+            return {"error": "سؤال غير موجود"}
+        q = G["queue"][i]
+        count = 6 if int(a.get("count", 4)) == 6 else 4
+        opts = [str(x).strip()[:60] for x in a.get("options", [])]
+        opts = (opts + [""] * count)[:count]
+        correct = a.get("correct")
+        q["count"] = count
+        q["options"] = opts
+        q["correct"] = int(correct) if correct is not None and 0 <= int(correct) < count else None
+
+    elif t == "back_pick":
+        G["phase"] = "pick"
+
+    elif t == "begin":                         # جهّز كل شي → أول جولة
+        if not G["queue"] or not all(q_ready(x) for x in G["queue"]):
+            return {"error": "في أسئلة ناقصة خياراتها"}
+        G["round"] = 0
+        G["phase"] = "round"
+        clear_answers()
+
     elif t == "toggle_double":
         q = cur()
-        if q:
+        if q and G["phase"] == "round":
             q["double"] = not q.get("double", False)
-    elif t == "send_compose":
+
+    elif t == "show":                          # اعرض السؤال وابدأ العد
         q = cur()
-        if q:
-            G["composer"] = "host" if a.get("where") == "host" else q["owner"]
-            q["options"] = []
-            q["correct"] = None
-            G["phase"] = "compose"
-    elif t == "back_owner":
-        G["phase"] = "owner"
-        G["composer"] = None
-    elif t == "start_round":
-        q = cur()
-        if q and q["options"] and q["correct"] is not None:
+        if q and G["phase"] == "round":
             clear_answers()
             G["hint"] = ""
             G["phase"] = "play"
             G["deadline"] = now_ms() + ROUND_SECONDS * 1000
+
     elif t == "hint":
         txt = (a.get("text") or "").strip()[:160]
         if txt and not G["hint_used"]:
             G["hint"] = txt
             G["hint_used"] = True
+
     elif t == "reveal":
         q = cur()
         if q and G["phase"] == "play":
             for p in G["players"]:
-                if p["id"] == q["owner"]:
-                    p["correct"] = None
-                else:
-                    p["correct"] = (p["answer"] == q["correct"])
+                p["correct"] = (p["answer"] == q["correct"])
             G["phase"] = "reveal"
-    elif t == "toggle_correct":
+
+    elif t == "toggle_correct":                # القرار النهائي للمستضيف
         p = find(a.get("pid"))
         if p and G["phase"] == "reveal":
             p["correct"] = not bool(p["correct"])
+
     elif t == "next":
         q = cur()
         if q and G["phase"] == "reveal":
             pts = base_points(q)
             for p in G["players"]:
+                p["gain"] = pts if p["correct"] else 0
                 if p["correct"]:
                     p["score"] += pts
-                    p["gain"] = pts
-                else:
-                    p["gain"] = 0
             if G["round"] >= len(G["queue"]) - 1:
                 G["phase"] = "end"
             else:
                 G["round"] += 1
-                G["phase"] = "owner"
-                G["composer"] = None
+                G["phase"] = "round"
+
     elif t == "end_now":
         q = cur()
         if q and G["phase"] == "reveal":
@@ -319,6 +322,7 @@ def act(a):
                 if p["correct"]:
                     p["score"] += pts
         G["phase"] = "end"
+
     elif t == "again":
         reset(keep_players=True)
         G["phase"] = "pick"
@@ -412,8 +416,7 @@ def lan_ip():
 
 
 def all_ips():
-    """كل عناوين الشبكة المحلية — بعض الأجهزة فيها أكثر من كرت (واي فاي، إيثرنت، VPN)،
-    فنعرضها كلها والهوست يختار اللي يمسك مع جوالاتهم."""
+    """كل عناوين الشبكة المحلية — بعض الأجهزة فيها أكثر من كرت (واي فاي، إيثرنت، VPN)."""
     found = []
     primary = lan_ip()
     if not primary.startswith("127."):
@@ -472,14 +475,13 @@ def main():
         return
     port = srv.server_address[1]
     ips = all_ips()
-    ip = ips[0]
     JOIN_URLS = ["http://%s:%d/p" % (x, port) for x in ips]
     JOIN_URL = JOIN_URLS[0]
     bar = "═" * 46
     say("\n" + bar)
     say("   مين يعرفني أكثر — الخادم شغّال")
     say(bar)
-    say("   شاشة الهوست :  http://localhost:%d" % port)
+    say("   شاشة المستضيف:  http://localhost:%d" % port)
     for i, u in enumerate(JOIN_URLS):
         say("   رابط اللاعبين:  %s%s" % (u, "" if i == 0 else "   (عنوان بديل)"))
     say("   عدد الأسئلة  :  %d سؤال" % TOTAL)

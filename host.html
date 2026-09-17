@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>مين يعرفني أكثر — شاشة الهوست</title>
+<title>مين يعرفني أكثر — شاشة المستضيف</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <script src="/qrcode.min.js"></script>
@@ -11,7 +11,7 @@
 :root{
   --ink:#070A0F; --panel:#0E141D; --panel2:#151D29; --line:#233044; --line2:#33455F;
   --gray:#8D9AAC; --dim:#5E6B7D; --white:#EEF3F9; --blue:#2E6BFF; --blue-hi:#6D9BFF;
-  --blue-dim:#12203C; --good:#1FA463; --bad:#E23B3B; --gold:#E0A200;
+  --blue-dim:#12203C; --good:#18A957; --bad:#E8402F; --gold:#F2B01E;
   --disp:'Almarai','Segoe UI',Tahoma,sans-serif; --body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
 }
 *{box-sizing:border-box}
@@ -62,14 +62,16 @@ input{font-family:inherit;font-size:inherit}
 .btn-ghost:hover:not(:disabled){color:var(--white)}
 .btn-lg{padding:16px 34px;font-size:18px;font-family:var(--disp);font-weight:800}
 .btn-sm{padding:7px 13px;font-size:13px;border-radius:9px}
+.link{background:none;border:0;color:var(--dim);font-size:13px;text-decoration:underline;padding:0}
+.link:hover{color:var(--blue-hi)}
 .field{width:100%;background:#0A101A;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--white)}
 .field::placeholder{color:var(--dim)}
 .field:focus{border-color:var(--blue);outline:none}
 
 /* لوبي */
-.qr-card{background:#fff;border-radius:18px;padding:10px;display:grid;place-items:center;width:max-content;margin-inline:auto}
-.qr-card svg{display:block;width:min(340px,52vw);height:auto;image-rendering:pixelated}
-.url{font-family:var(--body);font-size:17px;color:var(--blue-hi);direction:ltr;letter-spacing:.4px;text-align:center;word-break:break-all}
+.qr-card{background:#fff;border-radius:20px;padding:12px;display:grid;place-items:center;width:max-content;margin-inline:auto}
+.qr-card svg{display:block;width:min(380px,56vw);height:auto;image-rendering:pixelated}
+.url{font-size:17px;color:var(--blue-hi);direction:ltr;text-align:center;word-break:break-all;font-variant-numeric:tabular-nums}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px}
 .pcard{display:flex;align-items:center;gap:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 11px}
 .pav{width:30px;height:30px;flex:none;border-radius:9px;background:var(--blue-dim);color:var(--blue-hi);display:grid;place-items:center;font-weight:700;font-size:14px}
@@ -90,7 +92,7 @@ input{font-family:inherit;font-size:inherit}
 .tab{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 15px;font-size:14px;color:var(--gray);display:flex;gap:7px;align-items:center}
 .tab[aria-pressed="true"]{background:var(--blue-dim);border-color:var(--blue);color:var(--white);font-weight:600}
 .tab i{font-style:normal;font-size:11px;background:var(--panel2);border-radius:99px;padding:1px 7px;color:var(--blue-hi)}
-.qlist{display:flex;flex-direction:column;gap:8px;max-height:min(48vh,460px);overflow-y:auto;padding-inline-end:5px}
+.qlist{display:flex;flex-direction:column;gap:8px;max-height:min(46vh,440px);overflow-y:auto;padding-inline-end:5px}
 .qlist::-webkit-scrollbar{width:9px}.qlist::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
 .qitem{border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:12px 14px;text-align:right;width:100%;transition:.14s}
 .qitem:hover{border-color:var(--line2)}
@@ -103,21 +105,32 @@ input{font-family:inherit;font-size:inherit}
 .pchip{font-size:11.5px;color:var(--dim);background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:2px 9px}
 .pmore{font-size:11.5px;color:var(--blue-hi)}
 
-/* الكتابة */
+/* تجهيز الإجابات */
+.prep{display:flex;flex-direction:column;gap:9px}
+.pq{border:1px solid var(--line);background:var(--panel);border-radius:14px;overflow:hidden}
+.pq.open{border-color:var(--blue)}
+.pqhead{display:flex;align-items:center;gap:12px;width:100%;text-align:right;padding:13px 15px;background:transparent;border:0}
+.pqn{width:28px;height:28px;flex:none;border-radius:9px;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--gray);font-variant-numeric:tabular-nums}
+.pq.done .pqn{background:var(--good);border-color:var(--good);color:#04190F}
+.pqt{flex:1;font-weight:500;min-width:0}
+.pqt small{display:block;color:var(--dim);font-size:11.5px}
+.pqs{font-size:12.5px;color:var(--gold);white-space:nowrap}
+.pq.done .pqs{color:#4BD98A}
+.pqbody{padding:0 15px 16px;display:flex;flex-direction:column;gap:14px}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.seg button{border:1px solid var(--line);background:var(--panel2);border-radius:13px;padding:14px;text-align:center}
-.seg button b{display:block;font-family:var(--disp);font-weight:800;font-size:20px}
-.seg button small{color:var(--gray);font-size:12.5px}
+.seg button{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:12px;text-align:center}
+.seg button b{display:block;font-family:var(--disp);font-weight:800;font-size:18px}
+.seg button small{color:var(--gray);font-size:12px}
 .seg button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-dim)}
 .slots{display:flex;flex-direction:column;gap:9px}
 .slot{display:flex;align-items:center;gap:9px}
 .swatch{width:38px;height:38px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:16px;color:#fff;font-weight:700}
 .mark{flex:none;border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:9px 12px;font-size:12.5px;color:var(--dim);font-weight:600;white-space:nowrap}
-.mark[aria-pressed="true"]{background:rgba(31,164,99,.16);border-color:var(--good);color:#5FE0A5}
-.poolpick{display:flex;gap:6px;flex-wrap:wrap;max-height:180px;overflow-y:auto}
+.mark[aria-pressed="true"]{background:rgba(24,169,87,.18);border-color:var(--good);color:#4BD98A}
+.poolpick{display:flex;gap:6px;flex-wrap:wrap;max-height:170px;overflow-y:auto}
 .poolpick button{font-size:13.5px;border:1px solid var(--line);background:var(--panel2);border-radius:99px;padding:6px 13px;color:var(--gray)}
 .poolpick button:hover{border-color:var(--blue);color:var(--white)}
-.poolpick button.used{opacity:.35}
+.poolpick button.used{opacity:.32}
 
 /* اللعب */
 .timer{display:flex;align-items:center;gap:16px}
@@ -130,12 +143,11 @@ input{font-family:inherit;font-size:inherit}
 .qbig{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:clamp(20px,3.4vw,34px);position:relative;overflow:hidden}
 .qbig::after{content:"";position:absolute;inset-inline-start:-50px;top:-70px;width:260px;height:260px;background:radial-gradient(circle,rgba(46,107,255,.30),transparent 70%)}
 .qbig h2{font-size:clamp(26px,4.4vw,44px);position:relative}
-.about{font-size:15px;color:var(--gray);margin-bottom:10px;position:relative}
-.about b{color:var(--blue-hi);font-weight:600}
+.about{font-size:14px;color:var(--gray);margin-bottom:10px;position:relative}
 .opts{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
 .opt{display:flex;align-items:center;gap:13px;border-radius:14px;padding:16px 18px;color:#fff;font-weight:600;font-size:clamp(16px,2vw,21px);border:2px solid transparent;transition:.25s}
 .opt .sh{font-size:20px;opacity:.9}
-.opt.dim{opacity:.25;filter:grayscale(.5)}
+.opt.dim{opacity:.22;filter:grayscale(.55)}
 .opt.win{border-color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.14)}
 .opt .tag{margin-inline-start:auto;font-size:12.5px;background:rgba(255,255,255,.22);border-radius:99px;padding:2px 10px}
 .hintbar{display:flex;gap:10px;background:var(--blue-dim);border:1px solid #2A4478;border-radius:13px;padding:12px 16px}
@@ -147,13 +159,13 @@ input{font-family:inherit;font-size:inherit}
 /* الكشف */
 .judge{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px}
 .jcard{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:11px 13px;text-align:right}
-.jcard[data-ok="1"]{border-color:var(--good);background:rgba(31,164,99,.10)}
+.jcard[data-ok="1"]{border-color:var(--good);background:rgba(24,169,87,.10)}
 .jcard[data-ok="0"]{opacity:.62}
 .jdot{width:26px;height:26px;flex:none;border-radius:8px;display:grid;place-items:center;font-size:13px;color:#fff}
 .jname{flex:1;min-width:0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .jname small{display:block;color:var(--dim);font-size:11.5px}
 .jpts{font-family:var(--disp);font-weight:800;font-variant-numeric:tabular-nums;color:var(--dim)}
-.jcard[data-ok="1"] .jpts{color:#5FE0A5}
+.jcard[data-ok="1"] .jpts{color:#4BD98A}
 
 /* الترتيب */
 .stand{display:flex;flex-direction:column;gap:9px}
@@ -171,9 +183,8 @@ input{font-family:inherit;font-size:inherit}
 .tcard .tp{font-family:var(--disp);font-weight:800;font-size:44px;letter-spacing:-2px;font-variant-numeric:tabular-nums}
 .winline{font-family:var(--disp);font-weight:800;font-size:clamp(28px,5vw,46px);color:var(--blue-hi);text-align:center}
 .center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;padding-block:26px}
-.big-owner{font-family:var(--disp);font-weight:800;font-size:clamp(34px,7vw,64px);color:var(--blue-hi);letter-spacing:-1.5px}
-.spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:sp .9s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
+.roundno{font-family:var(--disp);font-weight:800;font-size:clamp(46px,10vw,86px);letter-spacing:-3px;line-height:1}
+.roundno span{color:var(--dim);font-size:.42em;letter-spacing:0}
 .veil{position:fixed;inset:0;z-index:60;background:rgba(3,6,11,.85);display:flex;align-items:center;justify-content:center;padding:20px}
 .modal{background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:22px;width:100%;max-width:460px;display:flex;flex-direction:column;gap:14px}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:70;background:var(--panel2);border:1px solid var(--line2);padding:11px 20px;border-radius:999px;font-size:14px;display:none}
@@ -198,9 +209,8 @@ input{font-family:inherit;font-size:inherit}
 const $  = s => document.querySelector(s);
 const esc = t => String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let SV=null, lastV=-1, lastPhase="", offset=0;
-let picked=[], tab=0, draft=null, modal=null, customPool=[], urlIx=0;
+let picked=[], tab=0, modal=null, customPool=[], openQ=0, drafts={}, showUrl=false, urlIx=0;
 
-/* ── الاتصال ── */
 async function send(action, extra){
   try{
     const r = await fetch("/act",{method:"POST",headers:{"Content-Type":"application/json"},
@@ -209,7 +219,7 @@ async function send(action, extra){
     if(j.error) toast(j.error);
     poll();
     return j;
-  }catch(e){ toast("انقطع الاتصال بالخادم"); }
+  }catch(e){ toast("انقطع الاتصال بالخادم"); return {}; }
 }
 async function poll(){
   try{
@@ -229,7 +239,7 @@ function toast(m){ const n=$("#toast"); n.textContent=m; n.style.display="block"
 /* ── الرسم ── */
 function render(){
   const s=SV; if(!s) return;
-  const playing = !["lobby","pick"].includes(s.phase);
+  const playing = ["round","play","reveal","end"].includes(s.phase);
   $("#c-round").style.display = (playing && s.phase!=="end") ? "" : "none";
   $("#b-end").style.display   = (playing && s.phase!=="end") ? "" : "none";
   $("#c-x2").style.display    = (playing && s.q && s.q.double && s.phase!=="end") ? "" : "none";
@@ -245,44 +255,44 @@ function render(){
   } else sc.style.display="none";
 
   const keep = saveFocus();
-  $("#main").innerHTML = ({lobby:vLobby,pick:vPick,owner:vOwner,compose:vCompose,
-                           ready:vReady,play:vPlay,reveal:vReveal,end:vEnd}[s.phase]||vLobby)()
+  $("#main").innerHTML = ({lobby:vLobby,pick:vPick,prep:vPrep,round:vRound,
+                           play:vPlay,reveal:vReveal,end:vEnd}[s.phase]||vLobby)()
                         + (modal ? mView() : "");
   wire(); restoreFocus(keep);
   if(s.phase==="lobby") drawQR();
   paintTimer();
 }
 function saveFocus(){ const a=document.activeElement;
-  if(a && a.id && (a.tagName==="INPUT")) return {id:a.id,val:a.value,st:a.selectionStart}; return null; }
+  if(a && a.id && a.tagName==="INPUT") return {id:a.id,val:a.value,st:a.selectionStart}; return null; }
 function restoreFocus(k){ if(!k) return; const n=document.getElementById(k.id);
   if(n){ n.value=k.val; n.focus(); try{n.setSelectionRange(k.st,k.st);}catch(e){} } }
 
 /* ── 1) اللوبي ── */
 function vLobby(){
-  const s=SV, teams=s.mode==="teams";
+  const s=SV, teams=s.mode==="teams", urls=s.joinUrls||[];
   return `<section class="screen">
    <div style="padding-block:14px 0">
-     <p class="eyebrow">شغّل الباركود على الشاشة الكبيرة</p>
+     <p class="eyebrow">أنت المستضيف — الأسئلة كلها عنك</p>
      <h1 style="font-size:clamp(30px,5vw,46px);margin-top:6px">مين <span style="color:var(--blue-hi)">يعرفني</span> أكثر؟</h1>
-     <p class="lead" style="margin-top:8px">كل واحد يمسح الباركود من جواله ويدخل اسمه. لازم الجميع على نفس شبكة الواي فاي.</p>
+     <p class="lead" style="margin-top:8px">جهّز أسئلتك وإجاباتها، واللاعبون يتنافسون على معرفتك. امسحوا الباركود من جوالاتكم على نفس شبكة الواي فاي.</p>
    </div>
    <div class="grid2">
      <div class="panel">
        <p class="panel-t">ادخلوا من جوالاتكم</p>
        <div class="qr-card" id="qr"></div>
-       <p class="url" style="margin-top:14px">${esc(curUrl())}</p>
-       <p class="note" style="text-align:center;margin-top:4px">افتحوا كاميرا الجوال ووجّهوها للباركود — أو اكتبوا الرابط بالمتصفح</p>
-       ${(s.joinUrls||[]).length>1?`
-         <p class="note" style="text-align:center;margin-top:14px">الباركود ما فتح؟ جهازك فيه أكثر من شبكة — جرّبوا عنوانًا ثانيًا:</p>
-         <div class="row" style="justify-content:center;margin-top:8px">
-           ${s.joinUrls.map((u,i)=>`<button class="chip" data-url="${i}" style="cursor:pointer;${i===urlIx?'background:var(--blue);border-color:var(--blue);color:#fff':''}">${esc(u.replace("http://","").replace("/p",""))}</button>`).join("")}
-         </div>`:""}
+       <div style="text-align:center;margin-top:14px">
+         ${showUrl?`<p class="url">${esc(curUrl())}</p>
+           ${urls.length>1?`<div class="row" style="justify-content:center;margin-top:10px">
+             ${urls.map((u,i)=>`<button class="chip" data-url="${i}" style="cursor:pointer;${i===urlIx?'background:var(--blue);border-color:var(--blue);color:#fff':''}">${esc(u.replace("http://","").replace("/p",""))}</button>`).join("")}
+           </div><p class="note" style="margin-top:8px">جرّب العنوان الثاني لو الأول ما فتح</p>`:""}`
+          :`<button class="link" id="showurl">ما فتح الباركود؟ اعرض الرابط</button>`}
+       </div>
      </div>
      <div style="display:flex;flex-direction:column;gap:16px">
        <div class="panel">
          <p class="panel-t">طريقة اللعب</p>
          <div class="modes">
-           <button class="mode" data-mode="solo" aria-pressed="${!teams}"><b>فردي</b><small>كل واحد ونقاطه</small></button>
+           <button class="mode" data-mode="solo" aria-pressed="${!teams}"><b>فردي</b><small>واحد ضد واحد — كل واحد ونقاطه</small></button>
            <button class="mode" data-mode="teams" aria-pressed="${teams}"><b>فريقين</b><small>النقاط تتجمع للفريق</small></button>
          </div>
          ${teams?`<div class="row" style="margin-top:12px">
@@ -293,7 +303,7 @@ function vLobby(){
        </div>
        <div class="panel">
          <p class="panel-t">اللاعبون <span class="chip"><i class="dot"></i><b>${s.players.length}</b></span><span class="sp"></span>
-           <span class="note">العدد مفتوح</span></p>
+           <span class="note">أنت خارج المنافسة — الأسئلة عنك</span></p>
          <div class="pgrid">
            ${s.players.length? s.players.map(p=>`
              <div class="pcard">
@@ -319,17 +329,16 @@ function vLobby(){
   </section>`;
 }
 function curUrl(){
-  const list=(SV&&SV.joinUrls&&SV.joinUrls.length)?SV.joinUrls:[SV&&SV.joinUrl||""];
-  return list[Math.min(urlIx,list.length-1)]||"";
+  const l=(SV&&SV.joinUrls&&SV.joinUrls.length)?SV.joinUrls:[(SV&&SV.joinUrl)||""];
+  return l[Math.min(urlIx,l.length-1)]||"";
 }
 function drawQR(){
   const box=$("#qr"), url=curUrl();
   if(!box||!url||!window.qrcode) return;
   try{
     const q=qrcode(0,"M"); q.addData(url); q.make();
-    // margin 4 = المنطقة البيضاء المعيارية حول الباركود، بدونها الكاميرا تتعب
-    box.innerHTML=q.createSvgTag({cellSize:10,margin:4});
-  }catch(e){ box.innerHTML='<p style="color:#111;padding:12px">تعذّر رسم الباركود — استخدموا الرابط</p>'; }
+    box.innerHTML=q.createSvgTag({cellSize:10,margin:4});   // margin 4 = المنطقة البيضاء المعيارية
+  }catch(e){ box.innerHTML='<p style="color:#111;padding:14px">تعذّر رسم الباركود</p>'; }
 }
 
 /* ── 2) اختيار الأسئلة ── */
@@ -337,19 +346,19 @@ let BANK=null;
 fetch("/bank").then(r=>r.json()).then(b=>{BANK=b; if(SV&&SV.phase==="pick") render();});
 const isPicked=(c,q)=>picked.some(p=>!p.custom&&p.c===c&&p.q===q);
 function vPick(){
-  if(!BANK) return `<section class="screen center"><div class="spin"></div></section>`;
-  const cat=BANK.cats[tab];
+  if(!BANK) return `<section class="screen center"><p class="note">جاري التحميل…</p></section>`;
+  const cat = tab>=0 ? BANK.cats[tab] : null;
   return `<section class="screen">
    <div>
-     <p class="eyebrow">خطوة 2</p>
-     <h1 style="font-size:clamp(24px,4vw,34px);margin-top:4px">اختاروا الأسئلة</h1>
-     <p class="lead" style="margin-top:6px">${BANK.total} سؤال في ${BANK.cats.length} تصنيفات، وكل سؤال تحته خيارات جاهزة يختار منها صاحب السؤال — أو اكتبوا أسئلتكم.</p>
+     <p class="eyebrow">خطوة 1 من 2</p>
+     <h1 style="font-size:clamp(24px,4vw,34px);margin-top:4px">اختر أسئلتك</h1>
+     <p class="lead" style="margin-top:6px">${BANK.total} سؤال في ${BANK.cats.length} تصنيفات، وكل سؤال تحته خيارات جاهزة تختار منها — أو اكتب سؤالك أنت.</p>
    </div>
    <div class="tabs">
      ${BANK.cats.map((c,i)=>{
        const n=picked.filter(p=>!p.custom&&p.c===i).length;
        return `<button class="tab" data-tab="${i}" aria-pressed="${tab===i}">${c.icon} ${esc(c.name)}${n?` <i>${n}</i>`:""}</button>`;}).join("")}
-     <button class="tab" data-tab="-1" aria-pressed="${tab===-1}">✍️ من عندكم${picked.filter(p=>p.custom).length?` <i>${picked.filter(p=>p.custom).length}</i>`:""}</button>
+     <button class="tab" data-tab="-1" aria-pressed="${tab===-1}">✍️ اكتب سؤالك${picked.filter(p=>p.custom).length?` <i>${picked.filter(p=>p.custom).length}</i>`:""}</button>
    </div>
    ${tab===-1? vCustom() : `<div class="qlist">
      ${cat.questions.map((q,i)=>`
@@ -365,17 +374,17 @@ function vPick(){
      <button class="btn btn-sm" id="rand10">اختر لي 10 عشوائي</button>
      <button class="btn btn-sm btn-ghost" id="clrpick">مسح</button>
      <span class="sp"></span>
-     <button class="btn btn-ghost btn-sm" id="tolobby">رجوع للوبي</button>
-     <button class="btn btn-main btn-lg" id="startgame" ${picked.length<1?"disabled":""}>ابدأوا اللعب</button>
+     <button class="btn btn-ghost btn-sm" id="tolobby">رجوع</button>
+     <button class="btn btn-main btn-lg" id="startprep" ${picked.length<1?"disabled":""}>تجهيز الإجابات ←</button>
    </div>
   </section>`;
 }
 function vCustom(){
   const mine=picked.filter(p=>p.custom);
   return `<div class="panel">
-    <p class="panel-t">اكتبوا سؤالكم</p>
+    <p class="panel-t">اكتب سؤالك</p>
     <input class="field" id="cq" placeholder="مثال: وش أكثر شي يضايقني بالدوام؟" autocomplete="off">
-    <p class="note" style="margin:10px 0 6px">خيارات جاهزة (اختياري) — إذا تركتها فاضية، صاحب السؤال بيكتب الخيارات بنفسه.</p>
+    <p class="note" style="margin:10px 0 6px">خيارات جاهزة (اختياري) — تقدر تكتبها بعدين في خطوة التجهيز.</p>
     <div class="row">
       <input class="field" id="cp" style="flex:1;min-width:170px" placeholder="اكتب خيار واضغط إضافة" autocomplete="off">
       <button class="btn btn-sm" id="addpool">إضافة خيار</button>
@@ -383,117 +392,101 @@ function vCustom(){
     ${customPool.length?`<div class="pool" style="padding:0;margin-top:10px">
       ${customPool.map((o,i)=>`<span class="pchip">${esc(o)} <b data-rmpool="${i}" style="cursor:pointer;color:var(--bad)">×</b></span>`).join("")}</div>`:""}
     <div class="row" style="margin-top:14px"><button class="btn btn-main" id="addcustom">أضِف السؤال للقائمة</button></div>
-    ${mine.length?`<div style="margin-top:18px"><p class="panel-t">أسئلتكم المضافة</p>
+    ${mine.length?`<div style="margin-top:18px"><p class="panel-t">أسئلتك المضافة</p>
       <div class="stand">${mine.map(p=>`<div class="srow"><span class="sname">${esc(p.text)}</span>
         <button class="x" data-rmcustom="${esc(p.text)}">×</button></div>`).join("")}</div></div>`:""}
   </div>`;
 }
 
-/* ── 3) صاحب السؤال ── */
-function vOwner(){
-  const s=SV, q=s.q, owner=s.players.find(p=>p.id===q.owner);
+/* ── 3) تجهيز الإجابات ── */
+function draftOf(i){
+  const q=SV.queue[i];
+  if(!drafts[i]) drafts[i]={count:q.count||4,
+    options:(q.options&&q.options.length?q.options.slice():[]).concat(["","","","","",""]).slice(0,6),
+    correct:q.correct};
+  return drafts[i];
+}
+function vPrep(){
+  const s=SV, C=s.colors, done=s.queue.filter(q=>q.ready).length;
   return `<section class="screen">
-   <div class="center">
-     <p class="eyebrow">السؤال ${s.round+1} من ${s.total} · ${esc(q.cat)}</p>
-     <div class="panel" style="max-width:62ch"><h2 style="font-size:clamp(20px,3vw,28px)">${esc(q.text)}</h2></div>
-     <p class="lead">هذا السؤال عن مَن؟ يستلمه على جواله ويكتب الخيارات بسرّية.</p>
-     <div class="row" style="justify-content:center">
-       ${s.players.map(p=>`<button class="chip" data-owner="${p.id}" style="${q.owner===p.id?'background:var(--blue);border-color:var(--blue);color:#fff':''};cursor:pointer;padding:9px 16px">${esc(p.name)}</button>`).join("")}
-     </div>
-     <div class="panel" style="max-width:56ch;width:100%">
-       <div class="row" style="justify-content:space-between">
-         <div style="text-align:right">
-           <b style="font-family:var(--disp)">دبل نقاط ×2</b>
-           <p class="note">فعّلها قبل ما يطلع السؤال — تضاعف نقاط هذي الجولة</p>
-         </div>
-         <button class="btn ${q.double?"btn-gold":""}" id="dbl">${q.double?"مفعّلة ✓":"تفعيل"}</button>
-       </div>
-     </div>
-     <p class="big-owner">${esc(owner?owner.name:"—")}</p>
-     <div class="row" style="justify-content:center">
-       <button class="btn btn-main btn-lg" id="sendphone">أرسل السؤال لجوال ${esc(owner?owner.name:"")}</button>
-       <button class="btn btn-ghost" id="composehere">يكتبها على هذي الشاشة</button>
-     </div>
-     <p class="note">النقاط: 4 خيارات = ${q.double?2:1} · 6 خيارات = ${q.double?4:2}</p>
+   <div>
+     <p class="eyebrow">خطوة 2 من 2 — لا تخلي أحد يشوف الشاشة</p>
+     <h1 style="font-size:clamp(24px,4vw,34px);margin-top:4px">جهّز إجاباتك</h1>
+     <p class="lead" style="margin-top:6px">لكل سؤال: اختر 4 أو 6 خيارات وحدّد إجابتك الصحيحة. اللاعبون بيحاولون يعرفونها.</p>
+   </div>
+   <div class="prep">
+     ${s.queue.map((q,i)=>{
+       const open=openQ===i, d=open?draftOf(i):null;
+       return `<div class="pq ${open?"open":""} ${q.ready?"done":""}">
+         <button class="pqhead" data-open="${i}">
+           <span class="pqn">${q.ready?"✓":i+1}</span>
+           <span class="pqt">${esc(q.text)}<small>${esc(q.cat)} · ${q.pool.length} خيار جاهز</small></span>
+           <span class="pqs">${q.ready?`${q.count} خيارات · جاهز`:"يحتاج تعبئة"}</span>
+         </button>
+         ${open?`<div class="pqbody">
+           <div class="seg">
+             <button data-count="4" aria-pressed="${d.count===4}"><b>4 خيارات</b><small>اللي يجيبها ياخذ نقطة</small></button>
+             <button data-count="6" aria-pressed="${d.count===6}"><b>6 خيارات</b><small>أصعب — نقطتان</small></button>
+           </div>
+           <div class="slots">
+             ${Array.from({length:d.count},(_,k)=>`
+               <div class="slot">
+                 <span class="swatch" style="background:${C[k].hex}">${C[k].shape}</span>
+                 <input class="field" id="o${i}_${k}" data-opt="${k}" value="${esc(d.options[k]||"")}" placeholder="${esc(C[k].name)} — اكتب أو اختر من تحت" autocomplete="off">
+                 <button class="mark" data-correct="${k}" aria-pressed="${d.correct===k}">${d.correct===k?"✓ إجابتي":"هذي إجابتي"}</button>
+               </div>`).join("")}
+           </div>
+           ${q.pool.length?`<div>
+             <p class="note" style="margin-bottom:8px">خيارات جاهزة — اضغط عليها تنزل بأول خانة فاضية:</p>
+             <div class="poolpick">${q.pool.map(o=>`<button data-fill="${esc(o)}" class="${d.options.includes(o)?"used":""}">${esc(o)}</button>`).join("")}</div>
+           </div>`:""}
+           <div class="row">
+             <button class="btn btn-sm" id="fillrand">عبّيها لي عشوائي</button>
+             <button class="btn btn-sm btn-ghost" id="clearopts">تفريغ</button>
+             <span class="sp"></span>
+             <button class="btn btn-main" id="saveq">حفظ ${i<s.queue.length-1?"والسؤال التالي":"وإغلاق"}</button>
+           </div>
+         </div>`:""}
+       </div>`;}).join("")}
+   </div>
+   <div class="row end" style="position:sticky;bottom:0;background:linear-gradient(0deg,var(--ink) 72%,transparent);padding-block:14px">
+     <span class="chip"><i class="dot"></i>جهّزت <b>${done}</b> / ${s.queue.length}</span>
+     <span class="sp"></span>
+     <button class="btn btn-ghost btn-sm" id="backpick">رجوع للأسئلة</button>
+     <button class="btn btn-main btn-lg" id="begin" ${s.allReady?"":"disabled"}>ابدأوا اللعب</button>
+     ${s.allReady?"":`<span class="note">كمّل الأسئلة الناقصة</span>`}
    </div>
   </section>`;
 }
 
-/* ── 4) الكتابة ── */
-function vCompose(){
-  const s=SV, q=s.q, owner=s.players.find(p=>p.id===q.owner);
-  if(s.composer!=="host"){
-    return `<section class="screen center">
-      <div class="spin"></div>
-      <p class="eyebrow">بانتظار صاحب السؤال</p>
-      <p class="big-owner">${esc(owner?owner.name:"")}</p>
-      <p class="lead">يكتب الخيارات الحين على جواله. لا تشوفون شاشته!</p>
-      <div class="panel" style="max-width:60ch"><h2 style="font-size:22px">${esc(q.text)}</h2></div>
-      <div class="row" style="justify-content:center">
-        <button class="btn btn-ghost" id="backowner">رجوع</button>
-        <button class="btn" id="composehere">أكتبها على هذي الشاشة بدلاً عنه</button>
-      </div>
-    </section>`;
-  }
-  if(!draft) draft={count:q.count||4,options:["","","","","",""],correct:null};
-  const d=draft, ready=d.options.slice(0,d.count).every(o=>o.trim())&&d.correct!==null&&d.correct<d.count;
-  return `<section class="screen">
-    <div><p class="eyebrow" style="color:var(--gold)">⚠ وجّه الشاشة لصاحب السؤال فقط — لا يشوفها الباقون</p>
-      <h1 style="font-size:clamp(20px,3.4vw,30px);margin-top:6px">${esc(q.text)}</h1></div>
-    ${composeBody(d,q.pool,ready)}
-    <div class="row end">
-      <button class="btn btn-ghost" id="backowner">رجوع</button>
-      <button class="btn btn-main btn-lg" id="submitc" ${ready?"":"disabled"}>جاهز — أخفِ الشاشة</button>
-    </div>
-  </section>`;
-}
-function composeBody(d,pool,ready){
-  const C=SV.colors;
-  return `<div class="panel">
-      <p class="panel-t">كم خيار؟</p>
-      <div class="seg">
-        <button data-count="4" aria-pressed="${d.count===4}"><b>4 خيارات</b><small>اللي يجيبها ياخذ نقطة</small></button>
-        <button data-count="6" aria-pressed="${d.count===6}"><b>6 خيارات</b><small>أصعب — نقطتان</small></button>
-      </div>
-    </div>
-    <div class="panel">
-      <p class="panel-t">الخيارات <span class="sp"></span>
-        <button class="btn btn-sm" id="fillrand">عبّيها لي عشوائي</button>
-        <button class="btn btn-sm btn-ghost" id="clearopts">تفريغ</button></p>
-      <div class="slots">
-        ${Array.from({length:d.count},(_,i)=>`
-          <div class="slot">
-            <span class="swatch" style="background:${C[i].hex}">${C[i].shape}</span>
-            <input class="field" id="opt${i}" data-opt="${i}" value="${esc(d.options[i]||"")}" placeholder="${esc(C[i].name)} — اكتب أو اختر من تحت" autocomplete="off">
-            <button class="mark" data-correct="${i}" aria-pressed="${d.correct===i}">${d.correct===i?"✓ الصح":"هذا الصح"}</button>
-          </div>`).join("")}
-      </div>
-      ${pool&&pool.length?`<p class="note" style="margin:14px 0 8px">خيارات جاهزة — اضغط عليها تنزل بأول خانة فاضية:</p>
-      <div class="poolpick">${pool.map(o=>`<button data-fill="${esc(o)}" class="${d.options.includes(o)?"used":""}">${esc(o)}</button>`).join("")}</div>`:""}
-      ${!ready?`<p class="note" style="margin-top:12px;color:var(--gold)">عبّي كل الخانات وحدّد الإجابة الصحيحة.</p>`:""}
-    </div>`;
-}
-
-/* ── 5) جاهز ── */
-function vReady(){
-  const s=SV, q=s.q, owner=s.players.find(p=>p.id===q.owner);
+/* ── 4) قبل السؤال ── */
+function vRound(){
+  const s=SV, q=s.q;
   return `<section class="screen center">
-    <p class="eyebrow">الخيارات جاهزة</p>
-    <p class="big-owner">${esc(owner?owner.name:"")}</p>
-    <p class="lead">خلّص الكتابة. جوالات اللاعبين بتصير ألوان بس — اضغط ابدأ ويبدأ العد التنازلي.</p>
+    <p class="eyebrow">استعدوا</p>
+    <p class="roundno">${s.round+1}<span> / ${s.total}</span></p>
+    <p class="lead">السؤال الجاي من تصنيف <b style="color:var(--white)">${esc(q.cat)}</b> — قرّر دبل النقاط قبل ما يطلع.</p>
+    <div class="panel" style="max-width:56ch;width:100%">
+      <div class="row" style="justify-content:space-between">
+        <div style="text-align:right">
+          <b style="font-family:var(--disp);font-size:17px">دبل نقاط ×2</b>
+          <p class="note">يضاعف نقاط هذي الجولة فقط</p>
+        </div>
+        <button class="btn ${q.double?"btn-gold":""}" id="dbl">${q.double?"مفعّلة ✓":"تفعيل"}</button>
+      </div>
+    </div>
     <div class="row" style="justify-content:center">
-      ${q.double?`<span class="chip x2">×2 دبل نقاط</span>`:""}
       <span class="chip">${q.count} خيارات</span>
+      <span class="chip">${q.points} ${q.points===1?"نقطة":"نقاط"}</span>
       <span class="chip">${s.seconds} ثانية</span>
     </div>
-    <button class="btn btn-main btn-lg" id="startround">اعرض السؤال وابدأ العد ←</button>
-    <button class="btn btn-ghost btn-sm" id="backowner">تعديل</button>
+    <button class="btn btn-main btn-lg" id="show">اعرض السؤال وابدأ العد ←</button>
   </section>`;
 }
 
-/* ── 6) اللعب ── */
+/* ── 5) اللعب ── */
 function vPlay(){
-  const s=SV, q=s.q, C=s.colors, owner=s.players.find(p=>p.id===q.owner);
+  const s=SV, q=s.q, C=s.colors;
   return `<section class="screen">
     <div class="timer" id="twrap">
       <span class="tnum" id="tnum">${s.seconds}</span>
@@ -502,17 +495,16 @@ function vPlay(){
       <span class="chip"><i class="dot"></i>جاوب <b id="ac">${s.answered}</b> / ${s.eligible}</span>
     </div>
     <div class="qbig">
-      <p class="about">سؤال عن <b>${esc(owner?owner.name:"")}</b> · ${esc(q.cat)}</p>
+      <p class="about">${esc(q.cat)}</p>
       <h2>${esc(q.text)}</h2>
     </div>
     <div class="opts">
       ${q.options.map((o,i)=>`<div class="opt" style="background:${C[i].hex}">
         <span class="sh">${C[i].shape}</span><span>${esc(o)}</span></div>`).join("")}
     </div>
-    ${s.hint?`<div class="hintbar"><b>تلميح الهوست:</b><span>${esc(s.hint)}</span></div>`:""}
+    ${s.hint?`<div class="hintbar"><b>تلميح المستضيف:</b><span>${esc(s.hint)}</span></div>`:""}
     <div class="answered">
-      ${s.players.filter(p=>p.id!==q.owner).map(p=>`
-        <span class="abub ${p.answer!==null?"in":""}">${esc(p.name)}${p.answer!==null?" ✓":""}</span>`).join("")}
+      ${s.players.map(p=>`<span class="abub ${p.answer!==null?"in":""}">${esc(p.name)}${p.answer!==null?" ✓":""}</span>`).join("")}
     </div>
     <div class="row end">
       <button class="btn" id="hint" ${s.hintUsed?"disabled":""}>${s.hintUsed?"المساعدة استُخدمت":"مساعدة (مرة وحدة باللعبة)"}</button>
@@ -522,11 +514,10 @@ function vPlay(){
   </section>`;
 }
 
-/* ── 7) الكشف ── */
+/* ── 6) الكشف ── */
 function vReveal(){
-  const s=SV, q=s.q, C=s.colors, owner=s.players.find(p=>p.id===q.owner);
-  const others=s.players.filter(p=>p.id!==q.owner);
-  const nOk=others.filter(p=>p.correct).length;
+  const s=SV, q=s.q, C=s.colors;
+  const nOk=s.players.filter(p=>p.correct).length;
   const last=s.round>=s.total-1;
   return `<section class="screen">
     <div><p class="eyebrow">انتهى الوقت · ${esc(q.cat)}</p>
@@ -534,20 +525,19 @@ function vReveal(){
     <div class="opts">
       ${q.options.map((o,i)=>`<div class="opt ${i===q.correct?"win":"dim"}" style="background:${C[i].hex}">
         <span class="sh">${C[i].shape}</span><span>${esc(o)}</span>
-        ${i===q.correct?`<span class="tag">إجابة ${esc(owner?owner.name:"")}</span>`:""}</div>`).join("")}
+        ${i===q.correct?`<span class="tag">إجابتي</span>`:""}</div>`).join("")}
     </div>
     <div class="panel">
-      <p class="panel-t">مين جاوب صح؟ <span class="sp"></span>
+      <p class="panel-t">مين عرفها؟ <span class="sp"></span>
         <span class="note">اضغط على أي واحد تبي تغيّر حكمه — القرار لك</span></p>
       <div class="judge">
-        ${others.map(p=>{
+        ${s.players.map(p=>{
           const c = p.answer!==null? C[p.answer] : null;
           return `<button class="jcard" data-judge="${p.id}" data-ok="${p.correct?1:0}">
             <span class="jdot" style="background:${c?c.hex:"var(--panel2)"};${c?"":"border:1px solid var(--line);color:var(--dim)"}">${c?c.shape:"—"}</span>
             <span class="jname">${esc(p.name)}<small>${c?esc(c.name):"ما جاوب"}${s.mode==="teams"?" · "+esc(s.teams[p.team]):""}</small></span>
             <span class="jpts">${p.correct?"+"+q.points:"0"}</span></button>`;}).join("")}
       </div>
-      <p class="note" style="margin-top:12px">${esc(owner?owner.name:"")} صاحب السؤال — خارج التنقيط.</p>
     </div>
     <div class="row end">
       <span class="chip"><i class="dot"></i><b>${nOk}</b> بياخذون ${q.points} ${q.points===1?"نقطة":"نقاط"}</span>
@@ -557,7 +547,7 @@ function vReveal(){
   </section>`;
 }
 
-/* ── 8) النهاية ── */
+/* ── 7) النهاية ── */
 function vEnd(){
   const s=SV, sorted=[...s.players].sort((a,b)=>b.score-a.score), best=sorted[0]?sorted[0].score:0;
   let head;
@@ -571,7 +561,7 @@ function vEnd(){
       </div>`;
   } else {
     const ch=sorted.filter(p=>p.score===best&&best>0).map(p=>p.name);
-    head=`<p class="winline">${ch.length?esc(ch.join(" و "))+" يعرفكم أكثر 👑":"ما أحد جمع نقاط!"}</p>`;
+    head=`<p class="winline">${ch.length?esc(ch.join(" و "))+" يعرفك أكثر 👑":"ما أحد جمع نقاط!"}</p>`;
   }
   return `<section class="screen">
     <div class="center" style="padding-block:10px">${head}</div>
@@ -592,9 +582,9 @@ function vEnd(){
 /* ── النوافذ ── */
 function mView(){
   if(modal==="hint") return `<div class="veil"><div class="modal">
-    <h3>مساعدة من الهوست</h3>
-    <p class="note">اكتب تلميحًا يقرّبهم بدون ما يفضح الإجابة. مرة وحدة باللعبة كاملة.</p>
-    <input class="field" id="hinttext" placeholder="مثال: الجواب شي يشربه كل يوم" autocomplete="off">
+    <h3>مساعدة منك</h3>
+    <p class="note">اكتب تلميحًا يقرّبهم لإجابتك بدون ما يفضحها. مرة وحدة باللعبة كاملة.</p>
+    <input class="field" id="hinttext" placeholder="مثال: الجواب شي أشربه كل يوم" autocomplete="off">
     <div class="row"><button class="btn btn-main" id="hintok">أظهر التلميح</button>
       <button class="btn btn-ghost" id="hintno">إلغاء</button></div></div></div>`;
   return `<div class="veil"><div class="modal">
@@ -610,15 +600,18 @@ function paintTimer(){
   n.textContent=Math.ceil(left);
   document.getElementById("tfill").style.width=(left/SV.seconds*100)+"%";
   document.getElementById("twrap").classList.toggle("low",left<=10);
-  if(left<=0 && SV.phase==="play"){ SV.phase="revealing"; send("reveal"); }
-  else if(SV.answered>=SV.eligible && SV.eligible>0 && SV.phase==="play"){ SV.phase="revealing"; setTimeout(()=>send("reveal"),600); }
+  if(left<=0){ SV.phase="revealing"; send("reveal"); }
+  else if(SV.answered>=SV.eligible && SV.eligible>0){ SV.phase="revealing"; setTimeout(()=>send("reveal"),600); }
 }
 setInterval(paintTimer,120);
 
 /* ── الأحداث ── */
 function on(sel,fn,ev){ document.querySelectorAll(sel).forEach(n=>n.addEventListener(ev||"click",fn)); }
+function grab(i){ const d=drafts[i]; if(!d) return;
+  document.querySelectorAll("[data-opt]").forEach(n=>{ d.options[+n.dataset.opt]=n.value; }); }
+
 function wire(){
-  // لوبي
+  // اللوبي
   on(".mode",e=>send("set_mode",{mode:e.currentTarget.dataset.mode}));
   on("#savenames",()=>{ send("set_team_name",{i:0,name:$("#tn0").value});
                         setTimeout(()=>send("set_team_name",{i:1,name:$("#tn1").value}),90); });
@@ -626,6 +619,7 @@ function wire(){
   on("[data-kick]",e=>send("kick",{pid:e.currentTarget.dataset.kick}));
   on("#addlocal",()=>{ const v=$("#localname").value.trim(); if(v){ send("add_local",{name:v}); $("#localname").value=""; } });
   on("#localname",e=>{ if(e.key==="Enter") $("#addlocal").click(); },"keydown");
+  on("#showurl",()=>{ showUrl=true; render(); });
   on("[data-url]",e=>{ urlIx=+e.currentTarget.dataset.url; render(); });
   on("#gopick",()=>send("goto_pick"));
   on("#tolobby",()=>send("back_lobby"));
@@ -646,53 +640,53 @@ function wire(){
     picked.push({custom:true,text:t,pool:customPool.slice()}); customPool=[]; render(); });
   on("[data-rmcustom]",e=>{ const t=e.currentTarget.dataset.rmcustom;
     const i=picked.findIndex(p=>p.custom&&p.text===t); if(i>=0)picked.splice(i,1); render(); });
-  on("#startgame",()=>send("start",{picks:picked}));
+  on("#startprep",()=>{ drafts={}; openQ=0; send("start",{picks:picked}); });
 
-  // صاحب السؤال
-  on("[data-owner]",e=>send("set_owner",{pid:e.currentTarget.dataset.owner}));
+  // تجهيز الإجابات
+  on("[data-open]",e=>{ const i=+e.currentTarget.dataset.open;
+    if(openQ===i){ openQ=-1; } else { openQ=i; } render(); });
+  on("[data-count]",e=>{ const d=draftOf(openQ); grab(openQ); d.count=+e.currentTarget.dataset.count;
+    if(d.correct!==null&&d.correct>=d.count) d.correct=null; render(); });
+  on("[data-opt]",e=>{ draftOf(openQ).options[+e.target.dataset.opt]=e.target.value; },"input");
+  on("[data-correct]",e=>{ const d=draftOf(openQ); grab(openQ); const k=+e.currentTarget.dataset.correct;
+    d.correct = d.correct===k?null:k; render(); });
+  on("[data-fill]",e=>{ const d=draftOf(openQ); grab(openQ); const v=e.currentTarget.dataset.fill;
+    const k=d.options.slice(0,d.count).findIndex(o=>!(o||"").trim());
+    if(k<0){toast("كل الخانات معبّاة");return;} d.options[k]=v; render(); });
+  on("#fillrand",()=>{ const d=draftOf(openQ), pool=(SV.queue[openQ].pool||[]).slice().sort(()=>Math.random()-.5);
+    if(pool.length<d.count){toast("الخيارات الجاهزة أقل من العدد المطلوب");return;}
+    d.options=pool.slice(0,6); d.correct=null; render(); });
+  on("#clearopts",()=>{ const d=draftOf(openQ); d.options=["","","","","",""]; d.correct=null; render(); });
+  on("#saveq",async()=>{
+    const i=openQ, d=draftOf(i); grab(i);
+    const opts=d.options.slice(0,d.count);
+    if(opts.some(o=>!(o||"").trim())){ toast("عبّي كل الخانات"); return; }
+    if(d.correct===null){ toast("حدّد إجابتك الصحيحة"); return; }
+    await send("set_question",{i,count:d.count,options:opts,correct:d.correct});
+    const nxt=(SV.queue||[]).findIndex((q,k)=>k>i && !q.ready);
+    openQ = nxt>=0 ? nxt : -1;
+    render();
+  });
+  on("#backpick",()=>send("back_pick"));
+  on("#begin",()=>send("begin"));
+
+  // الجولة واللعب
   on("#dbl",()=>send("toggle_double"));
-  on("#sendphone",()=>{ draft=null; send("send_compose",{where:"phone"}); });
-  on("#composehere",()=>{ draft=null; send("send_compose",{where:"host"}); });
-  on("#backowner",()=>{ draft=null; send("back_owner"); });
-
-  // الكتابة على شاشة الهوست
-  on("[data-count]",e=>{ draft.count=+e.currentTarget.dataset.count;
-    if(draft.correct!==null&&draft.correct>=draft.count) draft.correct=null; render(); });
-  on("[data-opt]",e=>{ draft.options[+e.target.dataset.opt]=e.target.value; syncReady(); },"input");
-  on("[data-correct]",e=>{ grab(); const i=+e.currentTarget.dataset.correct;
-    draft.correct = draft.correct===i?null:i; render(); });
-  on("[data-fill]",e=>{ grab(); const v=e.currentTarget.dataset.fill;
-    const i=draft.options.slice(0,draft.count).findIndex(o=>!o.trim());
-    if(i<0){toast("كل الخانات معبّاة");return;} draft.options[i]=v; render(); });
-  on("#fillrand",()=>{ const pool=(SV.q.pool||[]).slice().sort(()=>Math.random()-.5);
-    if(pool.length<draft.count){toast("الخيارات الجاهزة أقل من العدد المطلوب");return;}
-    draft.options=pool.slice(0,6); draft.correct=null; render(); });
-  on("#clearopts",()=>{ draft.options=["","","","","",""]; draft.correct=null; render(); });
-  on("#submitc",()=>{ grab();
-    send("submit_compose",{count:draft.count,options:draft.options.slice(0,draft.count),correct:draft.correct}); });
-
-  // اللعب
-  on("#startround",()=>send("start_round"));
+  on("#show",()=>send("show"));
   on("#hint",()=>{ modal="hint"; render(); });
   on("#hintok",()=>{ const v=$("#hinttext").value.trim(); modal=null; if(v) send("hint",{text:v}); else render(); });
   on("#hinttext",e=>{ if(e.key==="Enter") $("#hintok").click(); },"keydown");
   on("#hintno",()=>{ modal=null; render(); });
   on("#reveal",()=>send("reveal"));
-
-  // الكشف
   on("[data-judge]",e=>send("toggle_correct",{pid:e.currentTarget.dataset.judge}));
   on("#next",()=>send("next"));
 
   // عام
-  on("#again",()=>{ picked=[]; customPool=[]; draft=null; send("again"); });
-  on("#newgame",()=>{ picked=[]; customPool=[]; draft=null; send("new_game"); });
+  on("#again",()=>{ picked=[]; customPool=[]; drafts={}; openQ=0; send("again"); });
+  on("#newgame",()=>{ picked=[]; customPool=[]; drafts={}; openQ=0; send("new_game"); });
   on("#endok",()=>{ modal=null; send("end_now"); });
   on("#endno",()=>{ modal=null; render(); });
 }
-function grab(){ document.querySelectorAll("[data-opt]").forEach(i=>{draft.options[+i.dataset.opt]=i.value;}); }
-function syncReady(){ if(!draft) return;
-  const ok=draft.options.slice(0,draft.count).every(o=>o.trim())&&draft.correct!==null&&draft.correct<draft.count;
-  const b=document.getElementById("submitc"); if(b) b.disabled=!ok; }
 $("#b-end").addEventListener("click",()=>{ modal="end"; render(); });
 </script>
 </body>

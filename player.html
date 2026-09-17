@@ -92,7 +92,7 @@ input{font-family:inherit;font-size:16px}
 <script>
 const $=s=>document.querySelector(s);
 const esc=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let PID="", SV=null, lastKey="", offset=0, draft=null, prevPhase="";
+let PID="", SV=null, lastKey="", offset=0, prevPhase="";
 try{ PID=localStorage.getItem("mya_pid")||""; }catch(e){}
 
 async function send(action,extra){
@@ -108,7 +108,7 @@ async function poll(){
     const s=await r.json(); offset=s.now-Date.now(); SV=s;
     const key=[s.v,s.phase,s.joined,s.me?s.me.answer:""].join("|");
     if(key!==lastKey){
-      const started = ["lobby","pick"].includes(prevPhase) && !["lobby","pick"].includes(s.phase);
+      const started = ["lobby","pick","prep"].includes(prevPhase) && !["lobby","pick","prep"].includes(s.phase);
       prevPhase=s.phase; lastKey=key; render();
       if(started && s.joined){                       // انطلقت اللعبة — نبّه اللاعب
         if(navigator.vibrate) try{navigator.vibrate([40,70,40]);}catch(e){}
@@ -140,7 +140,6 @@ function head(){
 function view(){
   const s=SV;
   if(!s.joined) return vJoin();
-  if(s.compose) return vCompose();
   if(s.phase==="play") return vPlay();
   if(s.phase==="reveal") return vReveal();
   if(s.phase==="end") return vEnd();
@@ -159,23 +158,15 @@ function vJoin(){
 
 function vWait(){
   const s=SV;
-  if(s.isOwner && (s.phase==="owner"||s.phase==="compose"||s.phase==="ready")){
-    return `${head()}<section class="center">
-      <p class="chip gold">دورك</p>
-      <h2 class="big" style="font-size:26px">السؤال الجاي عنك</h2>
-      <p class="lead">${s.phase==="ready"?"خلّصت! انتظر الهوست يعرض السؤال.":"انتظر الهوست يرسل لك السؤال عشان تكتب الخيارات."}</p>
-      <div class="spin"></div></section>`;
-  }
-  if(s.phase==="lobby"||s.phase==="pick"){
+  if(["lobby","pick","prep"].includes(s.phase)){
     return `${head()}<section class="center">
       <div class="tickmark">✓</div>
       <h2 class="big" style="font-size:26px">تم دخولك</h2>
-      <p class="lead">انتظر المستضيف يختار الأسئلة…<br>أول ما يخلّص بتفتح عندك على طول</p>
+      <p class="lead">انتظر المستضيف يجهّز الأسئلة…<br>أول ما يخلّص بتفتح عندك على طول</p>
       <div class="spin"></div>
       <p class="note">لا تسكّر هذي الصفحة</p></section>`;
   }
-  const txt={owner:"الجولة الجاية تجهّز…",compose:"صاحب السؤال يكتب الخيارات…",
-             ready:"استعد! السؤال راح يطلع الحين."}[s.phase]||"انتظر…";
+  const txt={prep:"المستضيف يجهّز إجاباته…",round:"استعد! السؤال الجاي يطلع الحين."}[s.phase]||"انتظر…";
   return `${head()}<section class="center"><div class="spin"></div>
     <h2 style="font-size:20px">${esc(txt)}</h2>
     <p class="note">خلّ عينك على الشاشة الكبيرة</p></section>`;
@@ -183,10 +174,6 @@ function vWait(){
 
 function vPlay(){
   const s=SV, C=s.colors, m=s.me;
-  if(s.isOwner) return `${head()}<section class="center">
-    <p class="chip gold">أنت صاحب السؤال</p>
-    <h2 style="font-size:20px">اللاعبين يجاوبون الحين</h2>
-    <p class="note">تابع الشاشة الكبيرة</p><div class="spin"></div></section>`;
   if(m.answer!==null){
     const c=C[m.answer];
     return `${head()}<div class="timer" id="tm"><i id="tf"></i></div>
@@ -204,18 +191,13 @@ function vPlay(){
 
 function vReveal(){
   const s=SV, m=s.me, C=s.colors;
-  if(s.isOwner){ const c=C[s.result.correct];
-    return `${head()}<section class="center">
-      <p class="chip gold">سؤالك</p>
-      <div class="chip" style="background:${c.hex};border-color:${c.hex};color:#fff;font-size:17px;padding:10px 18px">${c.shape} ${esc(c.name)}</div>
-      <p class="lead">كانت إجابتك الصحيحة. الهوست يحسب النقاط الحين.</p></section>`; }
   if(m.answer===null) return `${head()}<section class="res no">
     <div class="mark">⏱</div><p class="t">ما لحقت</p><p class="lead">الجولة الجاية كن أسرع</p></section>`;
   const ok=m.answer===s.result.correct, c=C[s.result.correct];
   return `${head()}<section class="res ${ok?"ok":"no"}">
     <div class="mark">${ok?"✓":"✗"}</div>
     <p class="t">${ok?"صح! +"+s.result.points:"خطأ"}</p>
-    <p class="lead">${ok?"تعرفه زين":"الصح كان"} <b style="color:${c.hex}">${c.shape} ${esc(c.name)}</b></p>
+    <p class="lead">${ok?"تعرفه زين":"إجابته كانت"} <b style="color:${c.hex}">${c.shape} ${esc(c.name)}</b></p>
     <p class="note">مجموعك ${m.score} نقطة</p></section>`;
 }
 
@@ -228,38 +210,6 @@ function vEnd(){
     <p class="note">شوف الترتيب الكامل على الشاشة الكبيرة</p></section>`;
 }
 
-/* كتابة الخيارات على جوال صاحب السؤال */
-function vCompose(){
-  const s=SV, c=s.compose, C=s.colors;
-  if(!draft) draft={count:c.count||4,options:(c.options.length?c.options.slice():["","","","","",""]),correct:c.correct};
-  const d=draft, ready=d.options.slice(0,d.count).every(o=>(o||"").trim())&&d.correct!==null&&d.correct<d.count;
-  return `${head()}
-   <div><p class="chip gold">سؤالك — لا تخلي أحد يشوف جوالك</p>
-     <h2 style="font-size:20px;margin-top:10px">${esc(c.text)}</h2>
-     ${c.double?`<p class="chip gold" style="margin-top:8px">×2 دبل نقاط هالجولة</p>`:""}</div>
-   <div class="panel"><p class="note" style="margin-bottom:9px">كم خيار تبي؟</p>
-     <div class="seg">
-       <button data-count="4" aria-pressed="${d.count===4}"><b>4</b><small>نقطة للي يجيبها</small></button>
-       <button data-count="6" aria-pressed="${d.count===6}"><b>6</b><small>نقطتان للي يجيبها</small></button>
-     </div></div>
-   <div class="panel">
-     <div class="slots">
-       ${Array.from({length:d.count},(_,i)=>`
-         <div class="slot"><span class="swatch" style="background:${C[i].hex}">${C[i].shape}</span>
-           <input class="field" id="o${i}" data-opt="${i}" value="${esc(d.options[i]||"")}" placeholder="${esc(C[i].name)}" autocomplete="off">
-           <button class="mk" data-correct="${i}" aria-pressed="${d.correct===i}">${d.correct===i?"✓":"صح"}</button>
-         </div>`).join("")}
-     </div>
-     ${c.pool&&c.pool.length?`<p class="note" style="margin:13px 0 8px">اضغط خيار جاهز ينزل بأول خانة فاضية:</p>
-       <div class="poolpick">${c.pool.map(o=>`<button data-fill="${esc(o)}" class="${d.options.includes(o)?"used":""}">${esc(o)}</button>`).join("")}</div>
-       <div style="display:flex;gap:8px;margin-top:12px">
-         <button class="btn btn-sm" id="fillrand">عبّيها عشوائي</button>
-         <button class="btn btn-sm btn-ghost" id="clr">تفريغ</button></div>`:""}
-   </div>
-   <button class="btn btn-main" id="sub" ${ready?"":"disabled"}>جاهز — أرسل للشاشة</button>
-   ${!ready?`<p class="note" style="text-align:center">عبّي الخانات وحدّد الصح</p>`:""}`;
-}
-
 function paint(){
   const s=SV; if(!s||s.phase!=="play") return;
   const f=document.getElementById("tf"); if(!f) return;
@@ -270,7 +220,6 @@ function paint(){
 setInterval(paint,130);
 
 function on(sel,fn,ev){ document.querySelectorAll(sel).forEach(n=>n.addEventListener(ev||"click",fn)); }
-function grab(){ if(!draft)return; document.querySelectorAll("[data-opt]").forEach(i=>{draft.options[+i.dataset.opt]=i.value;}); }
 function wire(){
   on("#join",async()=>{
     const v=$("#nm").value.trim(); if(!v){toast("اكتب اسمك");return;}
@@ -281,23 +230,6 @@ function wire(){
   on("[data-pick]",e=>{ const i=+e.currentTarget.dataset.pick;
     if(navigator.vibrate) try{navigator.vibrate(18);}catch(x){}
     send("answer",{index:i}); });
-  on("[data-count]",e=>{ grab(); draft.count=+e.currentTarget.dataset.count;
-    if(draft.correct!==null&&draft.correct>=draft.count) draft.correct=null; render(); });
-  on("[data-opt]",e=>{ draft.options[+e.target.dataset.opt]=e.target.value;
-    const d=draft, ok=d.options.slice(0,d.count).every(o=>(o||"").trim())&&d.correct!==null&&d.correct<d.count;
-    const b=document.getElementById("sub"); if(b) b.disabled=!ok; },"input");
-  on("[data-correct]",e=>{ grab(); const i=+e.currentTarget.dataset.correct;
-    draft.correct=draft.correct===i?null:i; render(); });
-  on("[data-fill]",e=>{ grab(); const v=e.currentTarget.dataset.fill;
-    const i=draft.options.slice(0,draft.count).findIndex(o=>!(o||"").trim());
-    if(i<0){toast("كل الخانات معبّاة");return;} draft.options[i]=v; render(); });
-  on("#fillrand",()=>{ const p=(SV.compose.pool||[]).slice().sort(()=>Math.random()-.5);
-    if(p.length<draft.count){toast("الخيارات الجاهزة أقل من العدد");return;}
-    draft.options=p.slice(0,6); draft.correct=null; render(); });
-  on("#clr",()=>{ draft.options=["","","","","",""]; draft.correct=null; render(); });
-  on("#sub",()=>{ grab();
-    send("submit_compose",{count:draft.count,options:draft.options.slice(0,draft.count),correct:draft.correct})
-      .then(()=>{ draft=null; }); });
 }
 </script>
 </body>
